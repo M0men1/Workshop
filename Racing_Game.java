@@ -3,11 +3,18 @@ import java.awt.EventQueue;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import java.awt.Font;
 import java.awt.Image;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.awt.event.ActionEvent;
@@ -25,6 +32,8 @@ public class EV_7_GUI extends JFrame
 	private JLabel zebralabel;
 	int b, t, z;
 	private Timer timer;
+	MusicPlayer musicPlayer;
+	
 
 	/**
 	 * Launch the application.
@@ -38,9 +47,9 @@ public class EV_7_GUI extends JFrame
 			{
 				try
 				{
-
 					EV_7_GUI frame = new EV_7_GUI();
 					frame.setVisible(true);
+					
 				} catch (Exception e)
 				{
 					e.printStackTrace();
@@ -53,6 +62,33 @@ public class EV_7_GUI extends JFrame
 	/**
 	 * Create the frame.
 	 */
+	public class MusicPlayer {
+	    private Clip clip;
+
+	    public MusicPlayer(String filePath) {
+	        try {
+	            File musicFile = new File("C:/EPT/eclipse-workspace/EV/musicwav.wav");
+	            AudioInputStream audioStream = AudioSystem.getAudioInputStream(musicFile);
+	            clip = AudioSystem.getClip();
+	            clip.open(audioStream);
+	        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
+	            e.printStackTrace();
+	        }
+	    }
+
+	    public void play() {
+	        if (clip != null) {
+	            clip.start();
+	            clip.loop(Clip.LOOP_CONTINUOUSLY);  // Loop music
+	        }
+	    }
+
+	    public void stop() {
+	        if (clip != null && clip.isRunning()) {
+	            clip.stop();
+	        }
+	    }
+	}
 	public EV_7_GUI()
 
 	{
@@ -110,7 +146,7 @@ public class EV_7_GUI extends JFrame
 		panel.add(finishlabel);
 		finishlabel.setOpaque(true);
 
-		JButton btnNewButton = new JButton("Go");
+		JButton btnNewButton = new JButton("Go!");
 		btnNewButton.setBackground(Color.BLACK);
 		btnNewButton.setForeground(Color.RED);
 		class Run extends TimerTask
@@ -127,21 +163,24 @@ public class EV_7_GUI extends JFrame
 				z = z + (int) ((Math.random() * 50) + 1);
 				zebralabel.setLocation(z, zebralabel.getY());
 
-				if (bearlabel.getX() >= 550)
+				if (bearlabel.getX() >= 520)
 				{
 					JOptionPane.showMessageDialog(EV_7_GUI.this, "The winner is the bear!");
 					timer.cancel();
-				} else if (tigerlabel.getX() >= 550)
+					musicPlayer.stop();
+				} else if (tigerlabel.getX() >= 520)
 				{
 
 					JOptionPane.showMessageDialog(EV_7_GUI.this, "The winner is the tiger!");
 					timer.cancel();
+					musicPlayer.stop();
 
-				} else if (zebralabel.getX() >= 550)
+				} else if (zebralabel.getX() >= 520)
 				{
 
 					JOptionPane.showMessageDialog(EV_7_GUI.this, "The winner is the zebra!");
 					timer.cancel();
+					musicPlayer.stop();
 				}
 
 			}
@@ -151,6 +190,9 @@ public class EV_7_GUI extends JFrame
 
 			public void actionPerformed(ActionEvent e)
 			{
+				musicPlayer = new MusicPlayer("C:/EPT/eclipse-workspace/EV/musicwav.wav");
+				
+		        musicPlayer.play();
 				if (timer != null)
 				{
 					timer.cancel();
@@ -161,6 +203,7 @@ public class EV_7_GUI extends JFrame
 				bearlabel.setLocation(0, bearlabel.getY());
 				tigerlabel.setLocation(0, tigerlabel.getY());
 				zebralabel.setLocation(0, zebralabel.getY());
+				musicPlayer.stop();
 				timer = new Timer();
 				TimerTask task = new Run();
 				timer.schedule(task, 0, 150);
@@ -169,5 +212,6 @@ public class EV_7_GUI extends JFrame
 		btnNewButton.setFont(new Font("Tahoma", Font.BOLD, 30));
 		btnNewButton.setBounds(256, 415, 112, 46);
 		contentPane.add(btnNewButton);
+	
 	}
 }
